@@ -47,15 +47,12 @@ func Login(c *fiber.Ctx, db *gorm.DB) error {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid credentials")
 	}
 
-	claims := jwt.MapClaims{
-		"id":          user.ID,
-		"email":       user.Email,
-		"name":        user.FullName,
-		"createdDate": user.CreatedAt.Format(time.RFC3339),
-		"exp":         time.Now().Add(time.Hour * 24).Unix(),
-	}
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["id"] = user.ID
+	claims["email"] = user.Email
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtSecret)
 	if err != nil {
 		return err

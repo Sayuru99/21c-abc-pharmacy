@@ -29,6 +29,7 @@ func (r *Repository) SetupRoutes(app *fiber.App) {
 	})
 	api.Get("/users", r.GetUsers)
 	api.Get("/users/:id", r.GetUser)
+	api.Get("/users", r.GetUserByEmail)
 	api.Put("/users/:id", r.UpdateUser)
 	api.Delete("/users/:id", r.DeleteUser)
 
@@ -83,8 +84,21 @@ func (r *Repository) CreateUser(c *fiber.Ctx) error {
 }
 
 func (r *Repository) GetUsers(c *fiber.Ctx) error {
+	email := c.Query("email")
+
+	if email != "" {
+		var user models.User
+		if err := r.DB.Select("id, full_name, email, phone_number, created_at, updated_at, deleted_at").Where("email = ?", email).First(&user).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return fiber.NewError(fiber.StatusNotFound, "User not found")
+			}
+			return err
+		}
+		return c.JSON(user)
+	}
+
 	var users []models.User
-	if err := r.DB.Find(&users).Error; err != nil {
+	if err := r.DB.Select("id, full_name, email, phone_number, created_at, updated_at, deleted_at").Find(&users).Error; err != nil {
 		return err
 	}
 	return c.JSON(users)
@@ -114,6 +128,20 @@ func (r *Repository) UpdateUser(c *fiber.Ctx) error {
 	if err := r.DB.Save(&user).Error; err != nil {
 		return err
 	}
+	return c.JSON(user)
+}
+
+func (r *Repository) GetUserByEmail(c *fiber.Ctx) error {
+	email := c.Query("email")
+
+	var user models.User
+	if err := r.DB.Select("id, full_name, email, phone_number, created_at, updated_at, deleted_at").Where("email = ?", email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return fiber.NewError(fiber.StatusNotFound, "User not found")
+		}
+		return err
+	}
+
 	return c.JSON(user)
 }
 
