@@ -22,8 +22,8 @@ func init() {
 
 func Login(c *fiber.Ctx, db *gorm.DB) error {
 	type LoginInput struct {
-		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	var input LoginInput

@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  backend:
+    build: 
+      context: .
+      dockerfile: ./backend/Dockerfile
+    ports:
+      - "8880:8880"
+    depends_on:
+      - database
+
+  frontend:
+    build: 
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    ports:
+      - "5173:3000"
+
+  database:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: abc-pharmacy
+    ports:
+      - "5432:5432"
