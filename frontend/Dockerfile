@@ -1,19 +1,23 @@
-FROM node:latest
 
-WORKDIR /app/frontend
-
-
-COPY frontend/package.json .
-COPY frontend/package-lock.json .
+FROM node:18
 
 
-RUN npm install --legacy-peer-deps
+WORKDIR /usr/src/app
+
+
+COPY package.json package-lock.json ./
+
+
+RUN npm install
 
 
 COPY . .
 
 
-EXPOSE 5173
+RUN npm run build
 
 
-CMD ["npm", "run", "dev"]
+EXPOSE 3000
+
+
+CMD ["npm", "start"]
